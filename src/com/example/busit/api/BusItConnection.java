@@ -22,59 +22,60 @@ public class BusItConnection {
 
     private static final String DEBUG_TAG = "BusIt";
 
+    public void getBusData(final OnDoneCallback<JSONObject> callback) {
+        new AsyncTask<Void, Void, JSONObject>() {
 
-	public void getBusData(final OnDoneCallback<JSONObject> callback) {
-		new AsyncTask<Void, Void, JSONObject>() {
+            private JSONObject getNearbyBusData() throws IOException,
+                    JSONException {
+                URL url = new URL(ALL_BUS_DATA_URL);
+                HttpURLConnection conn = (HttpURLConnection) url
+                        .openConnection();
+                conn.setReadTimeout(10000 /* milliseconds */);
+                conn.setConnectTimeout(15000 /* milliseconds */);
+                conn.setRequestMethod("GET");
+                conn.setDoInput(true);
+                // Starts the query
+                conn.connect();
+                int response = conn.getResponseCode();
+                Log.d(DEBUG_TAG, "The response is: " + response);
+                InputStream in = new BufferedInputStream(conn.getInputStream());
+                Scanner scanner = new Scanner(in);
+                String input = "";
+                try {
+                    input = scanner.next();
+                } finally {
+                    in.close();
+                    scanner.close();
+                }
+                return new JSONObject(new JSONTokener(input));
+            }
 
-			private JSONObject getNearbyBusData() throws IOException, JSONException {
-	            URL url = new URL(ALL_BUS_DATA_URL);
-	            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-	            conn.setReadTimeout(10000 /* milliseconds */);
-	            conn.setConnectTimeout(15000 /* milliseconds */);
-	            conn.setRequestMethod("GET");
-	            conn.setDoInput(true);
-	            // Starts the query
-	            conn.connect();
-	            int response = conn.getResponseCode();
-	            Log.d(DEBUG_TAG, "The response is: " + response);
-	            InputStream in = new BufferedInputStream(conn.getInputStream());
-	            Scanner scanner = new Scanner(in);
-	            String input = "";
-	            try {
-	                input = scanner.next();
-	            } finally {
-	                in.close();
-	                scanner.close();
-	            }
-	            return new JSONObject(new JSONTokener(input));
-	        }
+            @Override
+            protected JSONObject doInBackground(Void... params) {
+                JSONObject res = null;
+                try {
+                    res = getNearbyBusData();
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                } catch (JSONException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+                return res;
+            }
 
-			@Override
-			protected JSONObject doInBackground(Void... params) {
-				JSONObject res = null;
-				try {
-					res = getNearbyBusData();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (JSONException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				return res;
-			}
+            @Override
+            protected void onPostExecute(JSONObject result) {
+                callback.onDone(result);
+            }
+        }.execute();
+    }
 
-	        @Override
-	        protected void onPostExecute(JSONObject result) {
-	            callback.onDone(result);
-	        }
-		};
-	}
+    public void checkIn(int busNum, OnDoneCallback<JSONObject> callback) {
+    }
 
-	public void checkIn(int busNum, OnDoneCallback<JSONObject> callback) {
-	}
-
-	public interface OnDoneCallback<T> {
-		public void onDone(T param);
-	}
+    public interface OnDoneCallback<T> {
+        public void onDone(T param);
+    }
 }
