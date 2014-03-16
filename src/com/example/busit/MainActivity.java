@@ -21,6 +21,8 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -31,13 +33,16 @@ import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 
 public class MainActivity extends Activity {
-
-    private static final String ALL_BUS_DATA_URL = "http://busit.herokuapp.com/buses";
+    private static final String API_ROOT = "http://busit.herokuapp.com";
+    private static final String ALL_BUS_DATA_URL = API_ROOT + "/buses";
+    private static final String CHECK_IN_URL = API_ROOT + "/check_ins";
     private static final String DEBUG_TAG = "MainActivity";
     private TextView textView;
     private MapView mapView;
+    private Button checkInButton;
     private GoogleMap map;
     private JSONArray busLocations;
+    private JSONObject checkInBus;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,18 +50,15 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
         this.textView = (TextView) findViewById(R.id.default_text);
         this.mapView = (MapView) findViewById(R.id.map_view);
-        this.mapView.onCreate(savedInstanceState);
+        this.checkInButton = (Button) findViewById(R.id.check_in_button);
 
+        this.mapView.onCreate(savedInstanceState);
         this.map = this.mapView.getMap();
         MapsInitializer.initialize(getApplicationContext());
-
         this.map.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(
                 37.7745952, -122.456628)));
-
         this.map.moveCamera(CameraUpdateFactory.zoomTo(18.0f));
-
         this.map.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-
             public JSONObject getClosestBus(LatLng location) {
                 double distance = Float.MAX_VALUE;
                 JSONObject closestBus = null;
@@ -89,13 +91,23 @@ public class MainActivity extends Activity {
 
                 try {
                     if (closestBus != null) {
-                        textView.setText((String) closestBus.get("route"));
+                        checkInBus = closestBus;
+                        textView.setText((String) checkInBus.get("route"));
                     } else {
                         throw new JSONException("No Closest Bus D:");
                     }
                 } catch (JSONException ex) {
                     ex.printStackTrace();
                 }
+            }
+        });
+
+        this.checkInBus = null;
+        this.checkInButton.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                // todo API request here!
             }
         });
 
