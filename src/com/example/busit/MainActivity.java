@@ -21,25 +21,31 @@ import android.util.Log;
 import android.view.Menu;
 import android.widget.TextView;
 
+import com.google.android.gms.maps.MapView;
+
 public class MainActivity extends Activity {
 
 	private static final String ALL_BUS_DATA_URL = "http://busit.herokuapp.com/buses";
 	private static final String DEBUG_TAG = "MainActivity";
 	private TextView textView;
+	private MapView mapView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         this.textView = (TextView) findViewById(R.id.default_text);
+        this.mapView = (MapView) findViewById(R.id.map_view);
+        this.mapView.onCreate(savedInstanceState);
+
         ConnectivityManager connMgr = (ConnectivityManager)
-                getSystemService(Context.CONNECTIVITY_SERVICE);
-            NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
-            if (networkInfo != null && networkInfo.isConnected()) {
-                new RenderBusListTask().execute();
-            } else {
-                Log.d(DEBUG_TAG, "Couldn't connect to the network!");
-            }
+        		getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+        if (networkInfo != null && networkInfo.isConnected()) {
+        	new RenderBusListTask().execute();
+        } else {
+        	Log.d(DEBUG_TAG, "Couldn't connect to the network!");
+        }
     }
 
     private class RenderBusListTask extends AsyncTask<Void, Void, JSONObject> {
@@ -85,31 +91,31 @@ public class MainActivity extends Activity {
     		textView.setText(busData.toString());
     	}
 
-		@Override
-		protected JSONObject doInBackground(Void... params) {
-			try {
-				return getNearbyBusData();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (JSONException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			return null;
-		}
+    	@Override
+    	protected JSONObject doInBackground(Void... params) {
+    		try {
+    			return getNearbyBusData();
+    		} catch (IOException e) {
+    			// TODO Auto-generated catch block
+    			e.printStackTrace();
+    		} catch (JSONException e) {
+    			// TODO Auto-generated catch block
+    			e.printStackTrace();
+    		}
+    		return null;
+    	}
 
-		@Override
-		protected void onPostExecute(JSONObject result) {
-			renderBusData(result);
-		}
+    	@Override
+    	protected void onPostExecute(JSONObject result) {
+    		renderBusData(result);
+    	}
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
+    	// Inflate the menu; this adds items to the action bar if it is present.
+    	getMenuInflater().inflate(R.menu.main, menu);
+    	return true;
     }
 
 }
