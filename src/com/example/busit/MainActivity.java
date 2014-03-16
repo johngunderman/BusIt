@@ -1,23 +1,14 @@
 package com.example.busit;
 
-import java.io.BufferedInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.Scanner;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.json.JSONTokener;
 
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -25,6 +16,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.example.busit.api.BusItConnection;
+import com.example.busit.api.BusItConnection.OnDoneCallback;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
@@ -33,9 +26,6 @@ import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 
 public class MainActivity extends Activity {
-    private static final String API_ROOT = "http://busit.herokuapp.com";
-    private static final String ALL_BUS_DATA_URL = API_ROOT + "/buses";
-    private static final String CHECK_IN_URL = API_ROOT + "/check_ins";
     private static final String DEBUG_TAG = "MainActivity";
     private TextView textView;
     private MapView mapView;
@@ -43,15 +33,16 @@ public class MainActivity extends Activity {
     private GoogleMap map;
     private JSONArray busLocations;
     private JSONObject checkInBus;
+    private BusItConnection busItConnection;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        this.busItConnection = new BusItConnection();
         this.textView = (TextView) findViewById(R.id.default_text);
         this.mapView = (MapView) findViewById(R.id.map_view);
         this.checkInButton = (Button) findViewById(R.id.check_in_button);
-
         this.mapView.onCreate(savedInstanceState);
         this.map = this.mapView.getMap();
         MapsInitializer.initialize(getApplicationContext());
@@ -114,9 +105,36 @@ public class MainActivity extends Activity {
         ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
         if (networkInfo != null && networkInfo.isConnected()) {
-            new RenderBusListTask().execute();
+            busItConnection.getBusData(new OnDoneCallback<JSONObject>() {
+				@Override
+				public void onDone(JSONObject param) {
+			    	MainActivity.this.renderBusData(param);
+				}
+			});
         } else {
             Log.d(DEBUG_TAG, "Couldn't connect to the network!");
+        }
+    }
+
+    private void renderBusData(JSONObject busData) {
+        textView.setText(busData.toString());
+
+        try {
+            busLocations = busData.getJSONArray("results");
+            for (int i = 0; i < busLocations.length(); i++) {
+                JSONObject busLocation = (JSONObject) busLocations.get(i);
+                double lat = busLocation.getDouble("lat");
+                double lon = busLocation.getDouble("lon");
+                LatLng location = new LatLng(lat, lon);
+
+                // map.addMarker((new MarkerOptions()).position());
+                map.addCircle((new CircleOptions()).radius(10.0)
+                        .fillColor(Color.RED).center(location)
+                        .strokeWidth(3f));
+            }
+        } catch (JSONException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
         }
     }
 
@@ -149,87 +167,6 @@ public class MainActivity extends Activity {
     public final void onLowMemory() {
         super.onLowMemory();
         this.mapView.onLowMemory();
-    }
-
-    private class RenderBusListTask extends AsyncTask<Void, Void, JSONObject> {
-
-        private void renderNearbyBusData() {
-            JSONObject busData;
-            try {
-                busData = getNearbyBusData();
-                renderBusData(busData);
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            } catch (JSONException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
-
-        private JSONObject getNearbyBusData() throws IOException, JSONException {
-            URL url = new URL(ALL_BUS_DATA_URL);
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setReadTimeout(10000 /* milliseconds */);
-            conn.setConnectTimeout(15000 /* milliseconds */);
-            conn.setRequestMethod("GET");
-            conn.setDoInput(true);
-            // Starts the query
-            conn.connect();
-            int response = conn.getResponseCode();
-            Log.d(DEBUG_TAG, "The response is: " + response);
-            InputStream in = new BufferedInputStream(conn.getInputStream());
-            Scanner scanner = new Scanner(in);
-            String input = "";
-            try {
-                input = scanner.next();
-            } finally {
-                in.close();
-                scanner.close();
-            }
-            return new JSONObject(new JSONTokener(input));
-        }
-
-        private void renderBusData(JSONObject busData) {
-            textView.setText(busData.toString());
-
-            try {
-                busLocations = busData.getJSONArray("results");
-                for (int i = 0; i < busLocations.length(); i++) {
-                    JSONObject busLocation = (JSONObject) busLocations.get(i);
-                    double lat = busLocation.getDouble("lat");
-                    double lon = busLocation.getDouble("lon");
-                    LatLng location = new LatLng(lat, lon);
-
-                    // map.addMarker((new MarkerOptions()).position());
-                    map.addCircle((new CircleOptions()).radius(10.0)
-                            .fillColor(Color.RED).center(location)
-                            .strokeWidth(3f));
-                }
-            } catch (JSONException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
-
-        @Override
-        protected JSONObject doInBackground(Void... params) {
-            try {
-                return getNearbyBusData();
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            } catch (JSONException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(JSONObject result) {
-            renderBusData(result);
-        }
     }
 
     @Override
