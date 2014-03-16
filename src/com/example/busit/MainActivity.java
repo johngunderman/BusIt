@@ -7,6 +7,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Scanner;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -26,6 +27,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 public class MainActivity extends Activity {
 
@@ -133,6 +135,20 @@ public class MainActivity extends Activity {
 
         private void renderBusData(JSONObject busData) {
             textView.setText(busData.toString());
+
+            JSONArray busArray;
+            try {
+                busArray = busData.getJSONArray("results");
+                for (int i = 0; i < busArray.length(); i++) {
+                    JSONObject busLocation = (JSONObject) busArray.get(i);
+                    double lat = busLocation.getDouble("lat");
+                    double lon = busLocation.getDouble("lon");
+                    map.addMarker((new MarkerOptions()).position(new LatLng(lat, lon)));
+                }
+            } catch (JSONException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
         }
 
         @Override
