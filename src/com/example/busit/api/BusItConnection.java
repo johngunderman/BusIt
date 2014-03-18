@@ -16,20 +16,17 @@ import android.util.Log;
 
 public class BusItConnection {
 
+    private static final String DEBUG_TAG = "LoginActivity";
     private static final String API_ROOT = "http://busit.herokuapp.com";
     private static final String ALL_BUS_DATA_URL = API_ROOT + "/buses";
     private static final String CHECK_IN_URL = API_ROOT + "/check_ins";
 
-    private static final String DEBUG_TAG = "BusIt";
-
     public void getBusData(final OnDoneCallback<JSONObject> callback) {
         new AsyncTask<Void, Void, JSONObject>() {
 
-            private JSONObject getNearbyBusData() throws IOException,
-                    JSONException {
+            private JSONObject getNearbyBusData() throws IOException, JSONException {
                 URL url = new URL(ALL_BUS_DATA_URL);
-                HttpURLConnection conn = (HttpURLConnection) url
-                        .openConnection();
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                 conn.setReadTimeout(10000 /* milliseconds */);
                 conn.setConnectTimeout(15000 /* milliseconds */);
                 conn.setRequestMethod("GET");
