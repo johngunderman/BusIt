@@ -22,11 +22,14 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
+            android:name="com.example.busit.LoginActivity"
+            android:label="Login to BusIt" >
+        </activity>
+        <activity
             android:name="com.example.busit.MainActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
