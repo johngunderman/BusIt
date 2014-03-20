@@ -46,8 +46,7 @@ public class MainActivity extends Activity {
         this.mapView.onCreate(savedInstanceState);
         this.map = this.mapView.getMap();
         MapsInitializer.initialize(getApplicationContext());
-        this.map.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(
-                37.7745952, -122.456628)));
+        this.map.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(37.7745952, -122.456628)));
         this.map.moveCamera(CameraUpdateFactory.zoomTo(18.0f));
         this.map.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             public JSONObject getClosestBus(LatLng location) {
@@ -60,8 +59,7 @@ public class MainActivity extends Activity {
                         double lat = bus.getDouble("lat");
                         double lon = bus.getDouble("lon");
 
-                        double thisDistance = Math.sqrt(Math.pow(
-                                (location.latitude - lat), 2)
+                        double thisDistance = Math.sqrt(Math.pow((location.latitude - lat), 2)
                                 + Math.pow((location.longitude - lon), 2));
 
                         if (thisDistance < distance) {
@@ -106,11 +104,11 @@ public class MainActivity extends Activity {
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
         if (networkInfo != null && networkInfo.isConnected()) {
             busItConnection.getBusData(new OnDoneCallback<JSONObject>() {
-				@Override
-				public void onDone(JSONObject param) {
-			    	MainActivity.this.renderBusData(param);
-				}
-			});
+                @Override
+                public void onDone(JSONObject param) {
+                    MainActivity.this.renderBusData(param);
+                }
+            });
         } else {
             Log.d(DEBUG_TAG, "Couldn't connect to the network!");
         }
@@ -128,9 +126,8 @@ public class MainActivity extends Activity {
                 LatLng location = new LatLng(lat, lon);
 
                 // map.addMarker((new MarkerOptions()).position());
-                map.addCircle((new CircleOptions()).radius(10.0)
-                        .fillColor(Color.RED).center(location)
-                        .strokeWidth(3f));
+                map.addCircle((new CircleOptions()).radius(10.0).fillColor(Color.RED).center(
+                        location).strokeWidth(3f));
             }
         } catch (JSONException e) {
             // TODO Auto-generated catch block
