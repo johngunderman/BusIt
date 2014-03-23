@@ -41,15 +41,8 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        GoogleAuth manager = new GoogleAuth(this, new OnDoneCallback<String>() {
 
-            @Override
-            public void onDone(String param) {
-                // TODO Auto-generated method stub
-
-            }
-        });
-        if (manager.needsToSignIn()) {
+        if ((new GoogleAuth(this)).needsToSignIn()) {
             this.startActivity(new Intent(this, LoginActivity.class));
         }
 

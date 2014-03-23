@@ -3,7 +3,6 @@ package com.example.busit;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
@@ -22,20 +21,18 @@ public class LoginActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login);
         this.loginButton = (Button) findViewById(R.id.login_button);
-        this.googleAuthManager = new GoogleAuth(this, new OnDoneCallback<String>() {
-
-            @Override
-            public void onDone(String param) {
-                LoginActivity.this.startActivity(new Intent(getApplicationContext(),
-                        MainActivity.class));
-            }
-
-        });
+        this.googleAuthManager = new GoogleAuth(this);
 
         this.loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                googleAuthManager.getAuthToken();
+                googleAuthManager.getAuthToken(new OnDoneCallback<String>() {
+                    @Override
+                    public void onDone(String param) {
+                        LoginActivity.this.finish();
+                    }
+
+                });
             }
         });
     }

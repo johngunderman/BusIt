@@ -22,12 +22,11 @@ public class GoogleAuth {
     private static final String ACCESS_TOKEN_KEY = "access_token";
     private final String SCOPE = "oauth2:https://www.googleapis.com/auth/userinfo.profile";
     private final Activity context;
-    private final OnDoneCallback<String> callback;
+    private OnDoneCallback<String> callback;
     private final SharedPreferences auth_settings;
 
-    public GoogleAuth(Activity context, OnDoneCallback<String> callback) {
+    public GoogleAuth(Activity context) {
         this.context = context;
-        this.callback = callback;
         this.auth_settings = context.getSharedPreferences(AUTH_SETTINGS_FILE, 0);
     }
 
@@ -35,8 +34,9 @@ public class GoogleAuth {
         return !this.auth_settings.contains(ACCESS_TOKEN_KEY);
     }
 
-    public void getAuthToken() {
+    public void getAuthToken(OnDoneCallback<String> callback) {
         Log.d(DEBUG_TAG, "checking logins...");
+        this.callback = callback; // XXX: this is pretty weird
         AccountManager mAccountManager = AccountManager.get(this.context);
         Account[] accounts = mAccountManager.getAccountsByType(GoogleAuthUtil.GOOGLE_ACCOUNT_TYPE);
 
