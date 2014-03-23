@@ -6,6 +6,7 @@ import org.json.JSONObject;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -18,6 +19,7 @@ import android.widget.TextView;
 
 import com.example.busit.api.BusItConnection;
 import com.example.busit.api.BusItConnection.OnDoneCallback;
+import com.example.busit.auth.GoogleAuth;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
@@ -39,6 +41,18 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        GoogleAuth manager = new GoogleAuth(this, new OnDoneCallback<String>() {
+
+            @Override
+            public void onDone(String param) {
+                // TODO Auto-generated method stub
+
+            }
+        });
+        if (manager.needsToSignIn()) {
+            this.startActivity(new Intent(this, LoginActivity.class));
+        }
+
         this.busItConnection = new BusItConnection();
         this.textView = (TextView) findViewById(R.id.default_text);
         this.mapView = (MapView) findViewById(R.id.map_view);
@@ -96,7 +110,7 @@ public class MainActivity extends Activity {
 
             @Override
             public void onClick(View v) {
-                // todo API request here!
+                // TODO API request here!
             }
         });
 

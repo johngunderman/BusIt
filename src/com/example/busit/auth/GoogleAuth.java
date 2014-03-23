@@ -5,6 +5,7 @@ import android.accounts.AccountManager;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -17,13 +18,21 @@ public class GoogleAuth {
     private static final String DEBUG_TAG = "BusIt";
     private static final int GOOGLE_GOT_AUTH_CODE = 89230589;
     private static final int GOOGLE_AUTH_CODE = 102938102;
+    private static final String AUTH_SETTINGS_FILE = "access_prefs";
+    private static final String ACCESS_TOKEN_KEY = "access_token";
     private final String SCOPE = "oauth2:https://www.googleapis.com/auth/userinfo.profile";
     private final Activity context;
     private final OnDoneCallback<String> callback;
+    private final SharedPreferences auth_settings;
 
     public GoogleAuth(Activity context, OnDoneCallback<String> callback) {
         this.context = context;
         this.callback = callback;
+        this.auth_settings = context.getSharedPreferences(AUTH_SETTINGS_FILE, 0);
+    }
+
+    public boolean needsToSignIn() {
+        return !this.auth_settings.contains(ACCESS_TOKEN_KEY);
     }
 
     public void getAuthToken() {
@@ -72,6 +81,7 @@ public class GoogleAuth {
         @Override
         protected void onPostExecute(String r) {
             Log.d(DEBUG_TAG, "got an auth token: " + r);
+            auth_settings.edit().putString(ACCESS_TOKEN_KEY, r).commit();
             callback.onDone(r);
         }
     }

@@ -26,7 +26,6 @@ public class LoginActivity extends Activity {
 
             @Override
             public void onDone(String param) {
-                Log.d(DEBUG_TAG, "Got Auth token from GoogleAuthManager!" + param);
                 LoginActivity.this.startActivity(new Intent(getApplicationContext(),
                         MainActivity.class));
             }
