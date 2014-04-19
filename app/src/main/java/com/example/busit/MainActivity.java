@@ -32,8 +32,7 @@ public class MainActivity extends Activity {
     private TextView textView;
     private MapView mapView;
     private Button checkInButton;
-    private GoogleMap map;
-    private JSONArray busLocations;
+    private BusMap busMap;
     private JSONObject checkInBus;
     private BusItConnection busItConnection;
 
@@ -48,55 +47,9 @@ public class MainActivity extends Activity {
 
         this.busItConnection = new BusItConnection();
         this.textView = (TextView) findViewById(R.id.default_text);
-        this.mapView = (MapView) findViewById(R.id.map_view);
         this.checkInButton = (Button) findViewById(R.id.check_in_button);
-        this.mapView.onCreate(savedInstanceState);
-        this.map = this.mapView.getMap();
-        MapsInitializer.initialize(getApplicationContext());
-        this.map.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(37.7745952, -122.456628)));
-        this.map.moveCamera(CameraUpdateFactory.zoomTo(18.0f));
-        this.map.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-            public JSONObject getClosestBus(LatLng location) {
-                double distance = Float.MAX_VALUE;
-                JSONObject closestBus = null;
 
-                try {
-                    for (int i = 0; i < busLocations.length(); i++) {
-                        JSONObject bus = (JSONObject) busLocations.get(i);
-                        double lat = bus.getDouble("lat");
-                        double lon = bus.getDouble("lon");
-
-                        double thisDistance = Math.sqrt(Math.pow((location.latitude - lat), 2)
-                                + Math.pow((location.longitude - lon), 2));
-
-                        if (thisDistance < distance) {
-                            distance = thisDistance;
-                            closestBus = bus;
-                        }
-                    }
-                } catch (JSONException ex) {
-                    ex.printStackTrace();
-                }
-
-                return closestBus;
-            }
-
-            @Override
-            public void onMapClick(LatLng arg0) {
-                JSONObject closestBus = getClosestBus(arg0);
-
-                try {
-                    if (closestBus != null) {
-                        checkInBus = closestBus;
-                        textView.setText((String) checkInBus.get("route"));
-                    } else {
-                        throw new JSONException("No Closest Bus D:");
-                    }
-                } catch (JSONException ex) {
-                    ex.printStackTrace();
-                }
-            }
-        });
+        this.initializeMap(savedInstanceState);
 
         this.checkInBus = null;
         this.checkInButton.setOnClickListener(new View.OnClickListener() {
@@ -115,32 +68,11 @@ public class MainActivity extends Activity {
             busItConnection.getBusData(new OnDoneCallback<JSONObject>() {
                 @Override
                 public void onDone(JSONObject param) {
-                    MainActivity.this.renderBusData(param);
+                   MainActivity.this.busMap.setBusData(param);
                 }
             });
         } else {
             Log.d(DEBUG_TAG, "Couldn't connect to the network!");
-        }
-    }
-
-    private void renderBusData(JSONObject busData) {
-        textView.setText(busData.toString());
-
-        try {
-            busLocations = busData.getJSONArray("results");
-            for (int i = 0; i < busLocations.length(); i++) {
-                JSONObject busLocation = (JSONObject) busLocations.get(i);
-                double lat = busLocation.getDouble("lat");
-                double lon = busLocation.getDouble("lon");
-                LatLng location = new LatLng(lat, lon);
-
-                // map.addMarker((new MarkerOptions()).position());
-                map.addCircle((new CircleOptions()).radius(10.0).fillColor(Color.RED).center(
-                        location).strokeWidth(3f));
-            }
-        } catch (JSONException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
         }
     }
 
@@ -182,4 +114,10 @@ public class MainActivity extends Activity {
         return true;
     }
 
+    protected void initializeMap(Bundle savedInstanceState) {
+        MapsInitializer.initialize(getApplicationContext());
+
+        this.mapView = (MapView) findViewById(R.id.map_view);
+        this.busMap = new BusMap(savedInstanceState, this.mapView, this.textView);
+    }
 }
