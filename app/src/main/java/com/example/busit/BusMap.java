@@ -21,6 +21,7 @@ public class BusMap {
     JSONObject busData;
     JSONArray busLocations; // populated from busData (TODO: Improve this?)
     TextView overviewTextView;
+    JSONObject checkInBus;
 
     public BusMap(Bundle savedInstanceState, MapView mapView, final TextView overviewTextView) {
         this.mapView = mapView;
@@ -74,7 +75,7 @@ public class BusMap {
                         JSONObject closestBus = getClosestBus(arg0);
                         try {
                             if (closestBus != null) {
-                                // checkInBus = closestBus;
+                                checkInBus = closestBus;
                                 overviewTextView.setText((String) closestBus.get("route"));
                             } else {
                                 throw new JSONException("No Closest Bus D:");
@@ -91,6 +92,10 @@ public class BusMap {
     public void setBusData(JSONObject busData) {
         this.busData = busData;
         this.renderBusData();
+    }
+
+    public JSONObject getClosestBus() {
+        return this.checkInBus;
     }
 
     private void renderBusData() {

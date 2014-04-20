@@ -31,9 +31,7 @@ public class MainActivity extends Activity {
     private static final String DEBUG_TAG = "MainActivity";
     private TextView textView;
     private MapView mapView;
-    private Button checkInButton;
     private BusMap busMap;
-    private JSONObject checkInBus;
     private BusItConnection busItConnection;
 
     @Override
@@ -47,18 +45,20 @@ public class MainActivity extends Activity {
 
         this.busItConnection = new BusItConnection();
         this.textView = (TextView) findViewById(R.id.default_text);
-        this.checkInButton = (Button) findViewById(R.id.check_in_button);
-
         this.initializeMap(savedInstanceState);
 
-        this.checkInBus = null;
-        this.checkInButton.setOnClickListener(new View.OnClickListener() {
-
+        Button checkInButton = (Button) findViewById(R.id.check_in_button);
+        checkInButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d(DEBUG_TAG, "Checking into the bus...");
-                String accessToken = (new GoogleAuth(MainActivity.this)).getSavedAuthToken();
-                busItConnection.checkIn(checkInBus, accessToken);
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Log.d(DEBUG_TAG, "Checking into the bus...");
+                        String accessToken = (new GoogleAuth(MainActivity.this)).getSavedAuthToken();
+                        busItConnection.checkIn(MainActivity.this.busMap.getClosestBus(), accessToken);
+                    }
+                }).run();
             }
         });
 
@@ -68,7 +68,7 @@ public class MainActivity extends Activity {
             busItConnection.getBusData(new OnDoneCallback<JSONObject>() {
                 @Override
                 public void onDone(JSONObject param) {
-                   MainActivity.this.busMap.setBusData(param);
+                    MainActivity.this.busMap.setBusData(param);
                 }
             });
         } else {
