@@ -87,11 +87,18 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
                 }).run();
             }
         });
+
     }
 
     @Override
     public void onStart() {
         super.onStart();
+        GoogleAuth.getAuthToken(new OnDoneCallback<String>() {
+            @Override
+            public void onDone(String accessToken) {
+                busItConnection.registerWithBackend(MainActivity.this, accessToken);
+            }
+        });
     }
 
     @Override

@@ -18,6 +18,9 @@ import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.example.busit.auth.GoogleAuth;
+import com.google.android.gms.gcm.GoogleCloudMessaging;
+
 public class BusItConnection {
     private static final String DEBUG_TAG = "LoginActivity";
     private static final String API_ROOT = "http://busit.herokuapp.com";
@@ -136,6 +139,44 @@ public class BusItConnection {
             }
 
         }.execute(new BusItCheckIn(bus, accessToken));
+    }
+
+    String SENDER_ID = "1067521686499";
+    public void registerWithBackend(final Context context, String accessToken) {
+        new AsyncTask() {
+            @Override
+            protected Object doInBackground(Object[] objects) {
+                GoogleCloudMessaging gcm = GoogleCloudMessaging.getInstance(context);
+                try {
+                    String regid = gcm.register(SENDER_ID);
+                    Log.d(DEBUG_TAG, "registered with GCM - id: " + regid);
+
+                    if (GoogleAuth.getSavedEmail().length() > 0) {
+                        String urlStr = API_ROOT + "/users/";
+                        URL url = new URL(urlStr);
+                        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                        conn.setReadTimeout(10000);
+                        conn.setConnectTimeout(15000);
+                        conn.setRequestMethod("POST");
+                        conn.setDoInput(true);
+                        conn.setDoOutput(true);
+                        PrintStream data = new PrintStream(conn.getOutputStream());
+                        data.print("recipient_id=" + regid);
+                        data.print("&");
+                        data.print("email=" + GoogleAuth.getSavedEmail());
+                        data.close();
+                        conn.connect();
+                        Log.d(DEBUG_TAG, "Made request to " + urlStr);
+                        int response = conn.getResponseCode();
+                        Log.d(DEBUG_TAG, "The response is: " + response);
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                return null;
+            }
+        }.execute(null, null, null);
     }
 
     public interface OnDoneCallback<T> {
