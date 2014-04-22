@@ -1,6 +1,7 @@
 package com.example.busit;
 
 import android.graphics.Color;
+import android.location.Location;
 import android.os.Bundle;
 import android.widget.TextView;
 
@@ -117,5 +118,10 @@ public class BusMap {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
+    }
+
+    public void setUserLocation(Location userLocation) {
+        LatLng position = new LatLng(userLocation.getLatitude(), userLocation.getLongitude());
+        map.moveCamera(CameraUpdateFactory.newLatLng(position));
     }
 }

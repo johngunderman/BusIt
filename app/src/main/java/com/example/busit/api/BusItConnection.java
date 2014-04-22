@@ -12,17 +12,32 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.util.Log;
 
 public class BusItConnection {
-
     private static final String DEBUG_TAG = "LoginActivity";
     private static final String API_ROOT = "http://busit.herokuapp.com";
     private static final String ALL_BUS_DATA_URL = API_ROOT + "/buses";
     private static final String CHECK_IN_URL = API_ROOT + "/check_ins";
+    private final NetworkInfo networkInfo;
+
+    public BusItConnection(Context activity) {
+        ConnectivityManager connMgr = (ConnectivityManager) activity.getSystemService(Context.CONNECTIVITY_SERVICE);
+        this.networkInfo = connMgr.getActiveNetworkInfo();
+        if (networkInfo == null || !networkInfo.isConnected()) {
+            Log.d(DEBUG_TAG, "Couldn't connect to the network!");
+        }
+    }
 
     public void getBusData(final OnDoneCallback<JSONObject> callback) {
+        if (networkInfo == null || !networkInfo.isConnected()) {
+            return;
+        }
+
         new AsyncTask<Void, Void, JSONObject>() {
 
             private JSONObject getNearbyBusData() throws IOException, JSONException {
@@ -81,6 +96,10 @@ public class BusItConnection {
     }
 
     public void checkIn(JSONObject bus, String accessToken) {
+        if (networkInfo == null || !networkInfo.isConnected()) {
+            return;
+        }
+
         new AsyncTask<BusItCheckIn, Void, Void>() {
 
             private Void makeCheckInRequest(BusItCheckIn checkin) throws IOException, JSONException {
