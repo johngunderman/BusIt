@@ -1,16 +1,10 @@
-package com.example.busit;
+package com.tdooner.munificent;
 
-import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.location.Location;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -18,48 +12,50 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.example.busit.api.BusItConnection;
-import com.example.busit.api.BusItConnection.OnDoneCallback;
-import com.example.busit.auth.GoogleAuth;
+import com.tdooner.munificent.R;
+import com.tdooner.munificent.api.BusItConnection;
+import com.tdooner.munificent.api.BusItConnection.OnDoneCallback;
+import com.tdooner.munificent.auth.GoogleAuth;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.location.LocationClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
-import com.google.android.gms.maps.model.CircleOptions;
-import com.google.android.gms.maps.model.LatLng;
 
 public class MainActivity extends Activity implements GooglePlayServicesClient.ConnectionCallbacks, GooglePlayServicesClient.OnConnectionFailedListener {
     private static final String DEBUG_TAG = "MainActivity";
+    private static final int RESULT_GET_AUTH_TOKEN = 23890299;
     private TextView textView;
     private MapView mapView;
     private BusMap busMap;
     private BusItConnection busItConnection;
     private LocationClient locationClient;
+    private GoogleAuth auth;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        GoogleAuth.context = this;
+        auth = new GoogleAuth(this.getApplicationContext());
 
         this.textView = (TextView) findViewById(R.id.default_text);
         this.locationClient = new LocationClient(this, this, this);
         this.locationClient.connect();
 
-        if (GoogleAuth.needsToSignIn()) {
-            this.startActivity(new Intent(this, LoginActivity.class));
+        if (auth.needsToSignIn()) {
+            Log.d(DEBUG_TAG, "email " + auth.getSavedEmail() + " | access " + auth.getSavedAuthToken());
+            this.startActivityForResult(new Intent(this, LoginActivity.class), RESULT_GET_AUTH_TOKEN);
+        } else {
+            Log.d(DEBUG_TAG, "no need to login for " + auth.getSavedEmail() + ":" + auth.getSavedAuthToken());
         }
 
         new Thread(new Runnable() {
             @Override
             public void run() {
                 MainActivity.this.initializeMap(savedInstanceState);
-                MainActivity.this.busItConnection = new BusItConnection(MainActivity.this);
+                MainActivity.this.busItConnection = new BusItConnection(MainActivity.this.getApplicationContext());
                 MainActivity.this.busItConnection.getBusData(new OnDoneCallback<JSONObject>() {
                     @Override
                     public void onDone(JSONObject param) {
@@ -77,12 +73,8 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
                     @Override
                     public void run() {
                         Log.d(DEBUG_TAG, "Checking into the bus...");
-                        GoogleAuth.getAuthToken(new OnDoneCallback<String>() {
-                            @Override
-                            public void onDone(String accessToken) {
-                                busItConnection.checkIn(MainActivity.this.busMap.getClosestBus(), accessToken);
-                            }
-                        });
+
+                        busItConnection.checkIn(MainActivity.this.busMap.getClosestBus(), auth.getSavedAuthToken());
                     }
                 }).run();
             }
@@ -93,12 +85,6 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
     @Override
     public void onStart() {
         super.onStart();
-        GoogleAuth.getAuthToken(new OnDoneCallback<String>() {
-            @Override
-            public void onDone(String accessToken) {
-                busItConnection.registerWithBackend(MainActivity.this, accessToken);
-            }
-        });
     }
 
     @Override
@@ -162,6 +148,20 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
                 });
             }
         }).run();
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case RESULT_GET_AUTH_TOKEN:
+                String accessToken = data.getStringExtra("accessToken");
+                Log.d(DEBUG_TAG, "MainActivity got auth token back");
+                Log.d(DEBUG_TAG, accessToken);
+                busItConnection.registerWithBackend(getApplicationContext(), accessToken);
+                break;
+            default:
+                Log.d(DEBUG_TAG, "WTF?");
+        }
     }
 
     @Override

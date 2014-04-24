@@ -1,4 +1,4 @@
-package com.example.busit.api;
+package com.tdooner.munificent.api;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -18,7 +18,7 @@ import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import com.example.busit.auth.GoogleAuth;
+import com.tdooner.munificent.auth.GoogleAuth;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 
 public class BusItConnection {
@@ -28,8 +28,8 @@ public class BusItConnection {
     private static final String CHECK_IN_URL = API_ROOT + "/check_ins";
     private final NetworkInfo networkInfo;
 
-    public BusItConnection(Context activity) {
-        ConnectivityManager connMgr = (ConnectivityManager) activity.getSystemService(Context.CONNECTIVITY_SERVICE);
+    public BusItConnection(Context context) {
+        ConnectivityManager connMgr = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         this.networkInfo = connMgr.getActiveNetworkInfo();
         if (networkInfo == null || !networkInfo.isConnected()) {
             Log.d(DEBUG_TAG, "Couldn't connect to the network!");
@@ -151,25 +151,23 @@ public class BusItConnection {
                     String regid = gcm.register(SENDER_ID);
                     Log.d(DEBUG_TAG, "registered with GCM - id: " + regid);
 
-                    if (GoogleAuth.getSavedEmail().length() > 0) {
-                        String urlStr = API_ROOT + "/users/";
-                        URL url = new URL(urlStr);
-                        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                        conn.setReadTimeout(10000);
-                        conn.setConnectTimeout(15000);
-                        conn.setRequestMethod("POST");
-                        conn.setDoInput(true);
-                        conn.setDoOutput(true);
-                        PrintStream data = new PrintStream(conn.getOutputStream());
-                        data.print("recipient_id=" + regid);
-                        data.print("&");
-                        data.print("email=" + GoogleAuth.getSavedEmail());
-                        data.close();
-                        conn.connect();
-                        Log.d(DEBUG_TAG, "Made request to " + urlStr);
-                        int response = conn.getResponseCode();
-                        Log.d(DEBUG_TAG, "The response is: " + response);
-                    }
+                    String urlStr = API_ROOT + "/users/";
+                    URL url = new URL(urlStr);
+                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                    conn.setReadTimeout(10000);
+                    conn.setConnectTimeout(15000);
+                    conn.setRequestMethod("POST");
+                    conn.setDoInput(true);
+                    conn.setDoOutput(true);
+                    PrintStream data = new PrintStream(conn.getOutputStream());
+                    data.print("recipient_id=" + regid);
+                    data.print("&");
+                    data.print("email=" + new GoogleAuth(context).getSavedEmail());
+                    data.close();
+                    conn.connect();
+                    Log.d(DEBUG_TAG, "Made request to " + urlStr);
+                    int response = conn.getResponseCode();
+                    Log.d(DEBUG_TAG, "The response is: " + response);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
