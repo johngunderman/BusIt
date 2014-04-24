@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.busit"
+    package="com.tdooner.munificient"
     android:versionCode="1"
-    android:versionName="1.0" >
+    android:versionName="1.0">
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
@@ -11,7 +11,7 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.GET_ACCOUNTS"/>
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE"/>
-    <uses-permission android:name="com.example.busit.permission.C2D_MESSAGE"/>
+    <uses-permission android:name="com.tdooner.munificent.permission.C2D_MESSAGE"/>
     <uses-feature
         android:glEsVersion="0x00020000"
         android:required="true"/>
@@ -19,21 +19,22 @@
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme" >
-        <receiver android:name=".GcmBroadcastReceiver"
+        android:theme="@style/AppTheme">
+        <!-- android:debuggable="false" -->
+        <receiver android:name="com.tdooner.munificent.GcmBroadcastReceiver"
             android:permission="com.google.android.c2dm.permission.SEND">
             <intent-filter>
                 <action android:name="com.google.android.c2dm.permission.RECEIVE"/>
-                <category android:name="com.example.busit"/>
+                <category android:name="com.tdooner.munificent"/>
             </intent-filter>
         </receiver>
-        <service android:name=".GcmIntentService"/>
+        <service android:name="com.tdooner.munificent.GcmIntentService"/>
         <activity
-            android:name="com.example.busit.LoginActivity"
-            android:label="Login to BusIt" >
+            android:name="com.tdooner.munificent.LoginActivity"
+            android:label="Login to Munificent" >
         </activity>
         <activity
-            android:name="com.example.busit.MainActivity"
+            android:name="com.tdooner.munificent.MainActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

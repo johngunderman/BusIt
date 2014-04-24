@@ -1,4 +1,4 @@
-package com.example.busit;
+package com.tdooner.munificent;
 
 import android.graphics.Color;
 import android.location.Location;

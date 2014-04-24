@@ -1,4 +1,4 @@
-package com.example.busit.auth;
+package com.tdooner.munificent.auth;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
@@ -8,7 +8,7 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import com.example.busit.api.BusItConnection.OnDoneCallback;
+import com.tdooner.munificent.api.BusItConnection.OnDoneCallback;
 import com.google.android.gms.auth.GoogleAuthUtil;
 import com.google.android.gms.auth.UserRecoverableAuthException;
 import com.google.android.gms.common.AccountPicker;

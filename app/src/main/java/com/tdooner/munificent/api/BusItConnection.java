@@ -1,4 +1,4 @@
-package com.example.busit.api;
+package com.tdooner.munificent.api;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -18,7 +18,7 @@ import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import com.example.busit.auth.GoogleAuth;
+import com.tdooner.munificent.auth.GoogleAuth;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 
 public class BusItConnection {

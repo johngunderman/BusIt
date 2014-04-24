@@ -1,4 +1,4 @@
-package com.example.busit;
+package com.tdooner.munificent;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -6,8 +6,9 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
-import com.example.busit.api.BusItConnection.OnDoneCallback;
-import com.example.busit.auth.GoogleAuth;
+import com.tdooner.munificient.R;
+import com.tdooner.munificent.api.BusItConnection.OnDoneCallback;
+import com.tdooner.munificent.auth.GoogleAuth;
 
 public class LoginActivity extends Activity {
     private static final String DEBUG_TAG = "LoginActivity";

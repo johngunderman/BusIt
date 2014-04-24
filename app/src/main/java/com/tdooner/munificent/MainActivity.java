@@ -1,16 +1,10 @@
-package com.example.busit;
+package com.tdooner.munificent;
 
-import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.location.Location;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -18,20 +12,17 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.example.busit.api.BusItConnection;
-import com.example.busit.api.BusItConnection.OnDoneCallback;
-import com.example.busit.auth.GoogleAuth;
+import com.tdooner.munificient.R;
+import com.tdooner.munificent.api.BusItConnection;
+import com.tdooner.munificent.api.BusItConnection.OnDoneCallback;
+import com.tdooner.munificent.auth.GoogleAuth;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.location.LocationClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
-import com.google.android.gms.maps.model.CircleOptions;
-import com.google.android.gms.maps.model.LatLng;
 
 public class MainActivity extends Activity implements GooglePlayServicesClient.ConnectionCallbacks, GooglePlayServicesClient.OnConnectionFailedListener {
     private static final String DEBUG_TAG = "MainActivity";

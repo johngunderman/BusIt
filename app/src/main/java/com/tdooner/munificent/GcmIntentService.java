@@ -1,4 +1,4 @@
-package com.example.busit;
+package com.tdooner.munificent;
 
 import android.app.IntentService;
 import android.app.NotificationManager;
